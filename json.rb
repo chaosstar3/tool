@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 require 'optparse'
 require 'json'
+require_relative 'common'
 
 opts = {mode: :p}
 
@@ -11,7 +12,10 @@ OptionParser.new do |ops|
 	ops.on("-p", "--pretty", "pretty") {opts[:mode] = :p}
 	ops.on("-d", "--debug", "debug") {opts[:mode] = :d}
 	ops.on("-l", "--lines", "lines") {opts[:lines] = true}
+	ops.on("-r", "--replace", "replace file") {opts[:replace] = true}
 end.parse!
+
+output = Output.new(opts[:replace])
 
 # detect_lines
 first_line = ""
@@ -36,12 +40,11 @@ end
 
 case opts[:mode]
 when :c
-	puts JSON.generate(json)
+	output.out {|o| o.puts JSON.generate(json)}
 when :p
-	puts JSON.pretty_generate(json)
+	output.out {|o| o.puts JSON.pretty_generate(json)}
 when :d
 	@json = json
 	$stdin.reopen(File.exist?("/dev/tty") ? "/dev/tty" : "CON") unless ARGF.file.is_a? File
 	binding.irb
 end
-

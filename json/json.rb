@@ -41,6 +41,7 @@ when :p
 	puts JSON.pretty_generate(json)
 when :d
 	@json = json
+	$stdin.reopen(File.exist?("/dev/tty") ? "/dev/tty" : "CON") unless ARGF.file.is_a? File
 	binding.irb
 end
 
